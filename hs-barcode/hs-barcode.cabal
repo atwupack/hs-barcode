@@ -1,0 +1,16 @@
+name: hs-barcode
+version: 0.0.1
+cabal-version: >=1.2
+build-type: Simple
+license: AllRightsReserved
+license-file: ""
+data-dir: ""
+ 
+library
+    build-depends: base -any, containers -any
+    exposed-modules: Barcode.Linear Barcode Barcode.Linear.Code39
+                     Barcode.Linear.Code11
+    exposed: True
+    buildable: True
+    hs-source-dirs: src
+ 
