@@ -31,6 +31,6 @@ saveEnc Nothing _ _ = print "Error"
 saveEnc (Just a) dims path = saveBarcode dims a path
 
 save :: (Encoder a) => a -> String -> Dimensions -> FilePath -> IO()
-save enc text dims path =
-    saveEnc (encode enc text) dims path
+save enc text =
+    saveEnc (encode enc text)
 

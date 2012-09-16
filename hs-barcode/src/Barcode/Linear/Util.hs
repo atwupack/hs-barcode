@@ -23,7 +23,7 @@ import Control.Monad
 -- | Calculate the checksum
 checkr :: [Int] -> Int -> Int -> Int
 checkr values maxCount modulo =
-    (snd (foldr (checks maxCount) (1,0) values)) `mod` modulo
+    snd (foldr (checks maxCount) (1,0) values) `mod` modulo
 
 checks :: Int -> Int -> (Int,Int) -> (Int,Int)
 checks maxCount value (weight,cs) = (newWeight, cs + weight*value)
@@ -54,7 +54,7 @@ lookupCode table c = M.lookup c (codeMap table)
 
 -- | Convert a symbol in internal representation to Bar list
 convertEnc :: [Int] -> [Bar]
-convertEnc = foldl (addBar) []
+convertEnc = foldl addBar []
 
 addBar :: [Bar] -> Int -> [Bar]
 addBar bar width
@@ -63,11 +63,11 @@ addBar bar width
 
 -- | Convert data to index list.
 convData :: [(Char,[Int])] -> String -> Maybe [Int]
-convData table s = mapM (lookupChar table) s
+convData table = mapM (lookupChar table)
 
 -- | Convert index list to encodings
 convIndex :: [(Char,[Int])] -> [Int] -> Maybe [[Bar]]
-convIndex table codes = mapM (lookupCode table) codes
+convIndex table = mapM (lookupCode table)
 
 
 

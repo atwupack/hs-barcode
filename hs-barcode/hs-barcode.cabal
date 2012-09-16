@@ -1,17 +1,19 @@
 name: hs-barcode
-version: 0.0.1
+version: 0.1
 cabal-version: >=1.2
 build-type: Simple
 license: AllRightsReserved
 license-file: ""
+description:  
 data-dir: ""
  
 library
     build-depends: JuicyPixels -any, base -any, containers -any
-    exposed-modules: Barcode Barcode.Linear Barcode.Linear.Output
+    exposed-modules: Barcode Barcode.Linear
     exposed: True
     buildable: True
     hs-source-dirs: src
-    other-modules: Barcode.Linear.Code93 Barcode.Linear.Common
-                   Barcode.Linear.Code39 Barcode.Linear.Code11 Barcode.Linear.Util
+    other-modules: Barcode.Linear.Code39 Barcode.Linear.Code93
+                   Barcode.Linear.Code11 Barcode.Linear.Output Barcode.Linear.Util
+                   Barcode.Linear.Common
  

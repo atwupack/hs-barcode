@@ -24,7 +24,7 @@ data Code39 = Code39 Bool | Code39Extended Bool
 
 instance Encoder Code39 where
     encode (Code39Extended check) s = do
-        pureCode39 <- mapM (\x->M.lookup x extMap) s
+        pureCode39 <- mapM (`M.lookup` extMap) s
         encode (Code39 check) (concat pureCode39)
     encode (Code39 check) s = do
         list <- convData encTable s
@@ -98,5 +98,5 @@ extTable = [    ('\NUL', "%U"), (' '," "), ('@', "%V"), ('`', "%W"),
                 ('\US', "%E"), ('?',"%J"), ('_', "%O"), ('\DEL', "%T")]
 
 extMap :: M.Map Char String
-extMap = M.fromList $ extTable
+extMap = M.fromList extTable
 

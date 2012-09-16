@@ -23,7 +23,7 @@ import Codec.Picture
 data Dimensions = Dimensions { border :: Int, barWidth :: Int, barHeight :: Int }
 
 convCode :: [Bar] -> [Bool]
-convCode code = concatMap convBar code
+convCode = concatMap convBar
     where
         convBar (Black a) = replicate a True
         convBar (White a) = replicate a False
