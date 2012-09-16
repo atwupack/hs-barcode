@@ -16,7 +16,7 @@ module Barcode.Linear.Output (
     Dimensions(..), saveBarcode
 ) where
 
-import Barcode.Linear
+import Barcode.Linear.Common
 import Codec.Picture.Types
 import Codec.Picture
 

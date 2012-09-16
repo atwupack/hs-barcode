@@ -13,55 +13,55 @@
 -----------------------------------------------------------------------------
 
 module Barcode.Linear.Code39 (
-    encode, Code39(..)
+    Code39(..)
 ) where
 
-import Barcode.Linear
+import Barcode.Linear.Common
 import Barcode.Linear.Util
 import qualified Data.Map as M
 
-data Code39 = Code39 Bool | Code39Ascii Bool
+data Code39 = Code39 Bool | Code39Extended Bool
 
 instance Encoder Code39 where
-    encode (Code39Ascii check) s = do
+    encode (Code39Extended check) s = do
         pureCode39 <- mapM (\x->M.lookup x extMap) s
         encode (Code39 check) (concat pureCode39)
     encode (Code39 check) s = do
         list <- convData encTable s
         let
             digits = if check then list ++ [sum list `mod` 43] else list
-        codes <- mapM (lookupCode encTable) digits
+        codes <- convIndex encTable digits
         let
             ccodes = concatMap (++[White 1]) codes
         return $ startStop ++ [White 1] ++ ccodes ++ [White 1] ++ startStop
 
-encTable :: [(Char, Int, String)]
-encTable = [    ('0',0, "bwbWBwBwb"), ('1',1, "BwbWbwbwB"),
-                ('2',2, "bwBWbwbwB"), ('3',3, "BwBWbwbwb"),
-                ('4',4, "bwbWBwbwB"), ('5',5, "BwbWBwbwb"),
-                ('6',6, "bwBWBwbwb"), ('7',7, "bwbWbwBwB"),
-                ('8',8, "BwbWbwBwb"), ('9',9, "bwBWbwBwb"),
-                ('A',10, "BwbwbWbwB"), ('B',11, "bwBwbWbwB"),
-                ('C',12, "BwBwbWbwb"), ('D',13, "bwbwBWbwB"),
-                ('E',14, "BwbwBWbwb"), ('F',15, "bwBwBWbwb"),
-                ('G',16, "bwbwbWBwB"), ('H',17, "BwbwbWBwb"),
-                ('I',18, "bwBwbWBwb"), ('J',19, "bwbwBWBwb"),
-                ('K',20, "BwbwbwbWB"), ('L',21, "bwBwbwbWB"),
-                ('M',22, "BwBwbwbWb"), ('N',23, "bwbwBwbWB"),
-                ('O',24, "BwbwBwbWb"), ('P',25, "bwBwBwbWb"),
-                ('Q',26, "bwbwbwBWB"), ('R',27, "BwbwbwBWb"),
-                ('S',28, "bwBwbwBWb"), ('T',29, "bwbwBwBWb"),
-                ('U',30, "BWbwbwbwB"), ('V',31, "bWBwbwbwB"),
-                ('W',32, "BWBwbwbwb"), ('X',33, "bWbwBwbwB"),
-                ('Y',34, "BWbwBwbwb"), ('Z',35, "bWBwBwbwb"),
-                ('-',36, "bWbwbwBwB"), ('.',37, "BWbwbwBwb"),
-                (' ',38, "bWBwbwBwb"), ('$',39, "bWbWbWbwb"),
-                ('/',40, "bWbWbwbWb"), ('+',41, "bWbwbWbWb"),
-                ('%',42, "bwbWbWbWb")]
+encTable :: [(Char,[Int])]
+encTable = [    ('0',[1,1,1,2,2,1,2,1,1]), ('1',[2,1,1,2,1,1,1,1,2]),
+                ('2',[1,1,2,2,1,1,1,1,2]), ('3',[2,1,2,2,1,1,1,1,1]),
+                ('4',[1,1,1,2,2,1,1,1,2]), ('5',[2,1,1,2,2,1,1,1,1]),
+                ('6',[1,1,2,2,2,1,1,1,1]), ('7',[1,1,1,2,1,1,2,1,2]),
+                ('8',[2,1,1,2,1,1,2,1,1]), ('9',[1,1,2,2,1,1,2,1,1]),
+                ('A',[2,1,1,1,1,2,1,1,2]), ('B',[1,1,2,1,1,2,1,1,2]),
+                ('C',[2,1,2,1,1,2,1,1,1]), ('D',[1,1,1,1,2,2,1,1,2]),
+                ('E',[2,1,1,1,2,2,1,1,1]), ('F',[1,1,2,1,2,2,1,1,1]),
+                ('G',[1,1,1,1,1,2,2,1,2]), ('H',[2,1,1,1,1,2,2,1,1]),
+                ('I',[1,1,2,1,1,2,2,1,1]), ('J',[1,1,1,1,2,2,2,1,1]),
+                ('K',[2,1,1,1,1,1,1,2,2]), ('L',[1,1,2,1,1,1,1,2,2]),
+                ('M',[2,1,2,1,1,1,1,2,1]), ('N',[1,1,1,1,2,1,1,2,2]),
+                ('O',[2,1,1,1,2,1,1,2,1]), ('P',[1,1,2,1,2,1,1,2,1]),
+                ('Q',[1,1,1,1,1,1,2,2,2]), ('R',[2,1,1,1,1,1,2,2,1]),
+                ('S',[1,1,2,1,1,1,2,2,1]), ('T',[1,1,1,1,2,1,2,2,1]),
+                ('U',[2,2,1,1,1,1,1,1,2]), ('V',[1,2,2,1,1,1,1,1,2]),
+                ('W',[2,2,2,1,1,1,1,1,1]), ('X',[1,2,1,1,2,1,1,1,2]),
+                ('Y',[2,2,1,1,2,1,1,1,1]), ('Z',[1,2,2,1,2,1,1,1,1]),
+                ('-',[1,2,1,1,1,1,2,1,2]), ('.',[2,2,1,1,1,1,2,1,1]),
+                (' ',[1,2,2,1,1,1,2,1,1]), ('$',[1,2,1,2,1,2,1,1,1]),
+                ('/',[1,2,1,2,1,1,1,2,1]), ('+',[1,2,1,1,1,2,1,2,1]),
+                ('%',[1,1,1,2,1,2,1,2,1])]
 
 -- | Encoding of the start/stop symbol
 startStop :: [Bar]
-startStop = convertEnc "bWbwBwBwb"
+startStop = convertEnc [1,2,1,1,2,1,2,1,1]
 
 extTable :: [(Char, String)]
 extTable = [    ('\NUL', "%U"), (' '," "), ('@', "%V"), ('`', "%W"),

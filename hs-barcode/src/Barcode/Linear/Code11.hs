@@ -16,13 +16,13 @@
 -----------------------------------------------------------------------------
 
 module Barcode.Linear.Code11 (
-    encode, CheckDigit(..), Code11(..)
+    CheckDigit(..), Code11(..)
 ) where
 
 import qualified Data.Map as M
 import Data.Char
 import Control.Monad
-import Barcode.Linear
+import Barcode.Linear.Common
 import Barcode.Linear.Util
 
 data Code11 = Code11 CheckDigit
@@ -32,7 +32,7 @@ instance Encoder Code11 where
         list <- convData encTable s
         let
             digits = checkData list c
-        codes <- mapM (lookupCode encTable) digits
+        codes <- convIndex encTable digits
         let
             ccodes = concatMap (++[White 1]) codes
         return $ startStop ++ [White 1] ++ ccodes ++ [White 1] ++ startStop
@@ -53,23 +53,23 @@ data CheckDigit
 -- w : narror white
 -- B ; wide black
 -- W : wide white
-encTable :: [(Char, Int, String)]
-encTable = [    ('0',0, "bwbwB"),
-                ('1',1, "BwbwB"),
-                ('2',2, "bWbwB"),
-                ('3',3, "BWbwb"),
-                ('4',4, "bwBwB"),
-                ('5',5, "BwBwb"),
-                ('6',6, "bWBwb"),
-                ('7',7, "bwbWB"),
-                ('8',8, "BwbWb"),
-                ('9',9, "Bwbwb"),
-                ('-',10, "bwBwb")]
+encTable :: [(Char, [Int])]
+encTable = [    ('0', [1,1,1,1,2]),
+                ('1', [2,1,1,1,2]),
+                ('2', [1,2,1,1,2]),
+                ('3', [2,2,1,1,1]),
+                ('4', [1,1,2,1,2]),
+                ('5', [2,1,2,1,1]),
+                ('6', [1,2,2,1,1]),
+                ('7', [1,1,1,2,2]),
+                ('8', [2,1,1,2,1]),
+                ('9', [2,1,1,1,1]),
+                ('-', [1,1,2,1,1])]
 
 
 -- | Encoding of the start/stop symbol
 startStop :: [Bar]
-startStop = convertEnc "bwBWb"
+startStop = convertEnc [1,1,2,2,1]
 
 -- | Calculate and add check digits
 checkData :: [Int] -> CheckDigit -> [Int]
@@ -80,13 +80,4 @@ checkData list (CKLimit a)
     | a>length list = checkData list C
     | otherwise = checkData list CK
 
--- | Calculate the checksum
-checkr :: [Int] -> Int -> Int -> Int
-checkr values maxCount modulo =
-    (snd (foldr (checks maxCount) (1,0) values)) `mod` modulo
-
-checks :: Int -> Int -> (Int,Int) -> (Int,Int)
-checks maxCount value (weight,cs) = (newWeight, cs + weight*value)
-    where
-        newWeight = if weight==maxCount then 1 else weight+1
 

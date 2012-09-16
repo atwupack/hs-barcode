@@ -13,17 +13,24 @@
 -----------------------------------------------------------------------------
 
 module Barcode.Linear (
-    Bar(..), Encoder, encode
+    Bar(..),
+    Code11(..), CheckDigit(..),
+    Code39(..),
+    Code93(..),
+    encode, save, Dimensions(..)
 ) where
 
-import Data.Char
+import Barcode.Linear.Code11
+import Barcode.Linear.Code39
+import Barcode.Linear.Code93
+import Barcode.Linear.Common
+import Barcode.Linear.Output
 
-data Bar = Black Int | White Int
+saveEnc :: Maybe [Bar] -> Dimensions -> FilePath -> IO()
+saveEnc Nothing _ _ = print "Error"
+saveEnc (Just a) dims path = saveBarcode dims a path
 
-instance Show Bar where
-   show (Black w) = intToDigit w : "B"
-   show (White w) = intToDigit w : "W"
-
-class Encoder a where
-    encode :: a -> String -> Maybe [Bar]
+save :: (Encoder a) => a -> String -> Dimensions -> FilePath -> IO()
+save enc text dims path =
+    saveEnc (encode enc text) dims path
 

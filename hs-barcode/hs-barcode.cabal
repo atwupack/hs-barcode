@@ -8,10 +8,10 @@ data-dir: ""
  
 library
     build-depends: JuicyPixels -any, base -any, containers -any
-    exposed-modules: Barcode Barcode.Linear Barcode.Linear.Code11
-                     Barcode.Linear.Code39 Barcode.Linear.Output
+    exposed-modules: Barcode Barcode.Linear Barcode.Linear.Output
     exposed: True
     buildable: True
     hs-source-dirs: src
-    other-modules: Barcode.Linear.Util
+    other-modules: Barcode.Linear.Code93 Barcode.Linear.Common
+                   Barcode.Linear.Code39 Barcode.Linear.Code11 Barcode.Linear.Util
  
