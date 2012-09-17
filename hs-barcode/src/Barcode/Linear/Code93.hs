@@ -18,20 +18,32 @@ module Barcode.Linear.Code93 (
 
 import Barcode.Linear.Common
 import Barcode.Linear.Util
+import qualified Barcode.Linear.Code39 as C39
+import qualified Data.Map as M
 
-data Code93 = Code93 | Code93Extended
+-- | Code 93 barcode.
+data Code93
+    -- | Standard Code 93 barcode supporting 0-9, A-Z and some special characters.
+    = Code93
+    -- | Extended Code 93 barcode supporting full ASCII charset.
+    | Code93Extended
+
+doEncode :: [(Char,[Int])] -> String -> Maybe [Bar]
+doEncode table s = do
+    list <- convData table s
+    let
+        listc = list ++ [checkr list 20 47]
+        listck = listc ++ [checkr listc 15 47]
+    codes <- convIndex table listck
+    let
+        ccodes = concat codes
+    return $ startStop ++ concat codes ++ startStop ++ [Black 1]
 
 instance Encoder Code93 where
-    encode Code93Extended s = encode Code93 s
-    encode Code93 s = do
-        list <- convData encTable s
-        let
-            listc = list ++ [checkr list 20 47]
-            listck = listc ++ [checkr listc 15 47]
-        codes <- convIndex encTable listck
-        let
-            ccodes = concat codes
-        return $ startStop ++ concat codes ++ startStop ++ [Black 1]
+    encode Code93Extended s = do
+        pureCode93 <- mapM (`M.lookup` asciiMap) s
+        doEncode extTable (concat pureCode93)
+    encode Code93 s = doEncode encTable s
 
 encTable :: [(Char,[Int])]
 encTable = [    ('0',[1,3,1,1,1,2]), ('1',[1,1,1,2,1,3]),
@@ -56,6 +68,21 @@ encTable = [    ('0',[1,3,1,1,1,2]), ('1',[1,1,1,2,1,3]),
                 (' ',[3,1,1,2,1,1]), ('$',[3,2,1,1,1,1]),
                 ('/',[1,1,2,1,3,1]), ('+',[1,1,3,1,2,1]),
                 ('%',[2,1,1,1,3,1])]
+
+extTable = encTable ++ [    ('§', [1,2,1,2,2,1]), ('‰', [3,1,2,1,1,1]),
+                            ('÷', [3,1,1,1,2,1]), ('‡', [1,2,2,2,1,1])]
+
+asciiTable :: [(Char, String)]
+asciiTable = map (\x->(fst x, map toExtSymbol (snd x))) C39.asciiTable
+    where
+        toExtSymbol '%' = '‰'
+        toExtSymbol '$' = '§'
+        toExtSymbol '+' = '‡'
+        toExtSymbol '/' = '÷'
+        toExtSymbol c = c
+
+asciiMap :: M.Map Char String
+asciiMap = M.fromList asciiTable
 
 -- | Encoding of the start/stop symbol
 startStop :: [Bar]

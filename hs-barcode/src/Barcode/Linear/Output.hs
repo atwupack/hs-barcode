@@ -41,10 +41,7 @@ calcPixel dim bits x y
         imageHeight = (2*border dim) + barHeight dim
 
 saveBarcode :: Dimensions -> [Bar] -> FilePath -> IO()
-saveBarcode dim code path = do
-    print imageWidth
-    print imageHeight
-    savePngImage path (ImageY8 image)
+saveBarcode dim code path = savePngImage path (ImageY8 image)
     where
         bits = convCode code
         imageWidth = (2*border dim) + (barWidth dim * length bits)

@@ -29,6 +29,7 @@ main = do
     save (Code39 True) "123-456ABCDE" (Dimensions 10 2 50) "/var/tmp/code39.png"
     save (Code39Extended False) "This's a test!" (Dimensions 10 2 50) "/var/tmp/code39ascii.png"
     save Code93 "123-4567890" (Dimensions 10 2 50) "/var/tmp/code93.png"
+    save Code93Extended "This's a test!" (Dimensions 10 2 50) "/var/tmp/code93ascii.png"
 
 
 

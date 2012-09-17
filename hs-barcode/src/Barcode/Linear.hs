@@ -13,11 +13,15 @@
 -----------------------------------------------------------------------------
 
 module Barcode.Linear (
-    Bar(..),
+    -- * Common stuff
+    Bar(..),encode, save, Dimensions(..),
+    -- * Supported linear barcodes
+    -- ** Code 11
     Code11(..), CheckDigit(..),
+    -- ** Code 39
     Code39(..),
-    Code93(..),
-    encode, save, Dimensions(..)
+    -- ** Code 93
+    Code93(..)
 ) where
 
 import Barcode.Linear.Code11

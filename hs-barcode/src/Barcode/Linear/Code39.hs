@@ -13,18 +13,23 @@
 -----------------------------------------------------------------------------
 
 module Barcode.Linear.Code39 (
-    Code39(..)
+    Code39(..), asciiTable
 ) where
 
 import Barcode.Linear.Common
 import Barcode.Linear.Util
 import qualified Data.Map as M
 
-data Code39 = Code39 Bool | Code39Extended Bool
+-- | Code 39 barcode.
+data Code39
+    -- | Standard Code 39 barcode supporting 0-9, A-Z and some special characters.
+    = Code39 Bool
+    -- | Extended Code 39 barcode supporting full ASCII charset.
+    | Code39Extended Bool
 
 instance Encoder Code39 where
     encode (Code39Extended check) s = do
-        pureCode39 <- mapM (`M.lookup` extMap) s
+        pureCode39 <- mapM (`M.lookup` asciiMap) s
         encode (Code39 check) (concat pureCode39)
     encode (Code39 check) s = do
         list <- convData encTable s
@@ -63,8 +68,8 @@ encTable = [    ('0',[1,1,1,2,2,1,2,1,1]), ('1',[2,1,1,2,1,1,1,1,2]),
 startStop :: [Bar]
 startStop = convertEnc [1,2,1,1,2,1,2,1,1]
 
-extTable :: [(Char, String)]
-extTable = [    ('\NUL', "%U"), (' '," "), ('@', "%V"), ('`', "%W"),
+asciiTable :: [(Char, String)]
+asciiTable = [    ('\NUL', "%U"), (' '," "), ('@', "%V"), ('`', "%W"),
                 ('\SOH', "$A"), ('!', "/A"), ('A', "A"), ('a', "+A"),
                 ('\STX', "$B"), ('"', "/B"), ('B', "B"), ('b', "+B"),
                 ('\ETX', "$C"), ('#', "/C"), ('C', "C"), ('c', "+C"),
@@ -97,6 +102,6 @@ extTable = [    ('\NUL', "%U"), (' '," "), ('@', "%V"), ('`', "%W"),
                 ('\RS', "%D"), ('>',"%I"), ('^', "%N"), ('~', "%S"),
                 ('\US', "%E"), ('?',"%J"), ('_', "%O"), ('\DEL', "%T")]
 
-extMap :: M.Map Char String
-extMap = M.fromList extTable
+asciiMap :: M.Map Char String
+asciiMap = M.fromList asciiTable
 

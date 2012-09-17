@@ -25,6 +25,7 @@ import Control.Monad
 import Barcode.Linear.Common
 import Barcode.Linear.Util
 
+-- | Code 11 barcode.
 data Code11 = Code11 CheckDigit
 
 instance Encoder Code11 where
@@ -37,6 +38,7 @@ instance Encoder Code11 where
             ccodes = concatMap (++[White 1]) codes
         return $ startStop ++ [White 1] ++ ccodes ++ [White 1] ++ startStop
 
+-- | The kind a check digits to be generated.
 data CheckDigit
     -- | Do not create any check digit.
     = None
@@ -49,10 +51,6 @@ data CheckDigit
     | CKLimit Int
 
 -- | Table encoding the valid characters
--- b : narrow black
--- w : narror white
--- B ; wide black
--- W : wide white
 encTable :: [(Char, [Int])]
 encTable = [    ('0', [1,1,1,1,2]),
                 ('1', [2,1,1,1,2]),
