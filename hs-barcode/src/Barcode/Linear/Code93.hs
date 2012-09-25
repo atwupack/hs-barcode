@@ -20,6 +20,8 @@ import Barcode.Linear.Common
 import Barcode.Linear.Util
 import qualified Barcode.Linear.Code39 as C39
 import qualified Data.Map as M
+import Barcode.Error
+import Control.Monad.Error
 
 -- | Code 93 barcode.
 data Code93
@@ -28,7 +30,7 @@ data Code93
     -- | Extended Code 93 barcode supporting full ASCII charset.
     | Code93Extended
 
-doEncode :: [(Char,[Int])] -> String -> Maybe [Bar]
+doEncode :: (MonadError BarcodeError m) => [(Char,[Int])] -> String -> m [Bar]
 doEncode table s = do
     list <- convData table s
     let
@@ -41,7 +43,7 @@ doEncode table s = do
 
 instance Encoder Code93 where
     encode Code93Extended s = do
-        pureCode93 <- mapM (`M.lookup` asciiMap) s
+        pureCode93 <- mapM (\x->forceLookup x asciiMap (IllegalCharacter x)) s
         doEncode extTable (concat pureCode93)
     encode Code93 s = doEncode encTable s
 

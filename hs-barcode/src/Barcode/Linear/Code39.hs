@@ -18,6 +18,7 @@ module Barcode.Linear.Code39 (
 
 import Barcode.Linear.Common
 import Barcode.Linear.Util
+import Barcode.Error
 import qualified Data.Map as M
 
 -- | Code 39 barcode.
@@ -29,7 +30,7 @@ data Code39
 
 instance Encoder Code39 where
     encode (Code39Extended check) s = do
-        pureCode39 <- mapM (`M.lookup` asciiMap) s
+        pureCode39 <- mapM (\x-> forceLookup x asciiMap (IllegalCharacter x)) s
         encode (Code39 check) (concat pureCode39)
     encode (Code39 check) s = do
         list <- convData encTable s

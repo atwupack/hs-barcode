@@ -8,13 +8,13 @@ description:
 data-dir: ""
  
 executable hs-barcode-test
-    build-depends: base -any, hs-barcode -any
+    build-depends: base -any, hs-barcode -any, mtl -any
     main-is: Main.hs
     buildable: True
     hs-source-dirs: src
  
 test-suite test-hs-barcode-test
-    build-depends: base -any, hs-barcode -any
+    build-depends: base -any, hs-barcode -any, mtl -any
     type: exitcode-stdio-1.0
     main-is: Main.hs
     buildable: True

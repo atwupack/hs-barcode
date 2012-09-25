@@ -13,12 +13,17 @@
 -----------------------------------------------------------------------------
 
 module Barcode.Linear.Util (
-    convertEnc, convData, convIndex, checkr
+    convertEnc, convData, convIndex, checkr, forceLookup
 ) where
 
 import qualified Data.Map as M
 import Barcode.Linear.Common
+import Barcode.Error
 import Control.Monad
+import Control.Monad.Error
+
+forceLookup :: (MonadError BarcodeError m, Ord a) => a -> M.Map a b -> BarcodeError -> m b
+forceLookup key map err = M.lookup key map <?> err
 
 -- | Calculate the checksum
 checkr :: [Int] -> Int -> Int -> Int
@@ -41,16 +46,16 @@ charMap :: [(Char,[Int])] -> M.Map Char Int
 charMap table = M.fromList $ fmap (\(c,i,s)->(c,i)) (indexTable table)
 
 -- | Perform a lookup for a Char
-lookupChar :: [(Char,[Int])] -> Char -> Maybe Int
-lookupChar table c = M.lookup c (charMap table)
+lookupChar :: (MonadError BarcodeError m) => [(Char,[Int])] -> Char -> m Int
+lookupChar table c = forceLookup c (charMap table) (IllegalCharacter c)
 
 -- | Map to lookup barcode for code
 codeMap :: [(Char,[Int])] -> M.Map Int [Bar]
 codeMap table = M.fromList $ fmap (\(c,i,s)->(i,convertEnc s)) (indexTable table)
 
 -- | Perform lookup for encoding.
-lookupCode :: [(Char,[Int])] -> Int -> Maybe [Bar]
-lookupCode table c = M.lookup c (codeMap table)
+lookupCode :: (MonadError BarcodeError m) => [(Char,[Int])] -> Int -> m [Bar]
+lookupCode table c = forceLookup c (codeMap table) (IllegalCode c)
 
 -- | Convert a symbol in internal representation to Bar list
 convertEnc :: [Int] -> [Bar]
@@ -62,11 +67,11 @@ addBar bar width
     | otherwise = bar ++ [White width]
 
 -- | Convert data to index list.
-convData :: [(Char,[Int])] -> String -> Maybe [Int]
+convData :: (MonadError BarcodeError m) => [(Char,[Int])] -> String -> m [Int]
 convData table = mapM (lookupChar table)
 
 -- | Convert index list to encodings
-convIndex :: [(Char,[Int])] -> [Int] -> Maybe [[Bar]]
+convIndex :: (MonadError BarcodeError m) => [(Char,[Int])] -> [Int] -> m [[Bar]]
 convIndex table = mapM (lookupCode table)
 
 

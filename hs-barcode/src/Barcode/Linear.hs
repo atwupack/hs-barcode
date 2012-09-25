@@ -14,7 +14,7 @@
 
 module Barcode.Linear (
     -- * Common stuff
-    Bar(..),encode, save, Dimensions(..),
+    Bar(..),encode, save, Dimensions(..),BarcodeError(..),
     -- * Supported linear barcodes
     -- ** Code 11
     Code11(..), CheckDigit(..),
@@ -29,12 +29,11 @@ import Barcode.Linear.Code39
 import Barcode.Linear.Code93
 import Barcode.Linear.Common
 import Barcode.Linear.Output
+import Barcode.Error
+import Control.Monad.Error
 
-saveEnc :: Maybe [Bar] -> Dimensions -> FilePath -> IO()
-saveEnc Nothing _ _ = print "Error"
-saveEnc (Just a) dims path = saveBarcode dims a path
 
-save :: (Encoder a) => a -> String -> Dimensions -> FilePath -> IO()
-save enc text =
-    saveEnc (encode enc text)
-
+save :: (Encoder a) => a -> String -> Dimensions -> FilePath -> ErrorT BarcodeError IO()
+save enc text dim path = do
+    bar <- encode enc text
+    liftIO $ saveBarcode dim bar path

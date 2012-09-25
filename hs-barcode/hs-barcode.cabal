@@ -8,12 +8,14 @@ description:
 data-dir: ""
  
 library
-    build-depends: JuicyPixels -any, base -any, containers -any
+    build-depends: JuicyPixels -any, base -any, containers -any,
+                   mtl -any
     exposed-modules: Barcode Barcode.Linear
     exposed: True
     buildable: True
+    extensions: FlexibleContexts
     hs-source-dirs: src
-    other-modules: Barcode.Linear.Code39 Barcode.Linear.Code93
-                   Barcode.Linear.Code11 Barcode.Linear.Output Barcode.Linear.Util
-                   Barcode.Linear.Common
+    other-modules: Barcode.Error Barcode.Linear.Code39
+                   Barcode.Linear.Code93 Barcode.Linear.Code11 Barcode.Linear.Output
+                   Barcode.Linear.Util Barcode.Linear.Common
  

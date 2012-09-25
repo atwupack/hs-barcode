@@ -17,6 +17,8 @@ module Barcode.Linear.Common (
 ) where
 
 import Data.Char
+import Barcode.Error
+import Control.Monad.Error
 
 -- | Sinlge bar with width.
 data Bar = Black Int | White Int
@@ -27,6 +29,6 @@ instance Show Bar where
 
 class Encoder a where
     -- | Encode a given 'String' as barcode.
-    encode :: a -> String -> Maybe [Bar]
+    encode :: (MonadError BarcodeError m) => a -> String -> m [Bar]
 
 
